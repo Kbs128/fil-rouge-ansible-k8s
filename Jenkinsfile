@@ -13,15 +13,13 @@ pipeline {
             steps {
                 echo "Vérification de WSL et d'ansible-playbook..."
                 sh '''
-                wsl bash -c '
-                echo "Utilisateur courant : $(whoami)"
-                echo "Chemin d\'Ansible : $(which ansible-playbook)"
-                if ! command -v ansible-playbook > /dev/null; then
-                  echo "Ansible non trouvé"
-                  exit 1
-                fi
-                ansible-playbook --version
-                '
+                wsl bash -c "echo 'Utilisateur courant : $(whoami)'; \
+                echo 'Chemin d\\'Ansible : $(which ansible-playbook)'; \
+                if ! command -v ansible-playbook > /dev/null; then \
+                  echo 'Ansible non trouvé'; \
+                  exit 1; \
+                fi; \
+                ansible-playbook --version"
                 '''
             }
         }
@@ -30,10 +28,7 @@ pipeline {
             steps {
                 echo "Exécution du playbook Ansible dans WSL..."
                 sh '''
-                wsl bash -c '
-                cd /mnt/c/Users/pc/.jenkins/workspace/Ansible-k8s
-                ansible-playbook site.yml
-                '
+                wsl bash -c "cd /mnt/c/Users/pc/.jenkins/workspace/Ansible-k8s && ansible-playbook site.yml"
                 '''
             }
         }
