@@ -27,24 +27,29 @@ pipeline {
             }
         }
 
-        stage('Configuration WSL & Ansible') {
+        stage('Installation Ansible si nécessaire') {
             steps {
-                echo "Installation et vérification d'Ansible dans WSL..."
+                echo "Installation d'Ansible (si non installé)..."
                 bat '''
-                    wsl --distribution Ubuntu -e bash -c "sudo apt-get update && sudo apt-get install -y ansible"
+                    wsl -d Ubuntu -- bash -c "command -v ansible-playbook || (sudo apt-get update && sudo apt-get install -y ansible)"
                 '''
+            }
+        }
+
+        stage('Vérification Version Ansible') {
+            steps {
                 bat '''
-                    wsl --distribution Ubuntu -e bash -c "ansible --version"
+                    wsl -d Ubuntu -- bash -c "ansible-playbook --version"
                 '''
             }
         }
 
         stage('Exécution Playbook') {
             steps {
-                echo "Exécution du playbook Ansible dans WSL..."
-                bat '''
-                    wsl --distribution Ubuntu -e bash -c "cd /mnt/c/Users/pc/.jenkins/workspace/Ansible-k8s && ansible-playbook -i inventory/hosts.yml site.yml -vv"
-                '''
+                echo "Exécution du playbook Ansible..."
+                bat """
+                    wsl -d Ubuntu -- bash -c "cd \$(wslpath '${WORKSPACE}') && ansible-playbook -i inventory/hosts.yml site.yml -vv"
+                """
             }
         }
     }
