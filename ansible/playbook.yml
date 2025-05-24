@@ -1,0 +1,12 @@
+- name: Déploiement fullstack sur Kubernetes
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Déployer la base de données PostgreSQL
+      command: kubectl apply -f k8s/backend-deployment.yaml
+
+    - name: Déployer le backend
+      command: kubectl apply -f k8s/backend-deployment.yaml
+
+    - name: Déployer le frontend
+      command: kubectl apply -f k8s/frontend-deployment.yaml
