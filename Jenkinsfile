@@ -7,23 +7,20 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Check Ansible') {
+        stage('Check WSL & Ansible') {
             steps {
-                echo "Vérification de la présence d'ansible-playbook dans WSL..."
-                sh 'wsl which ansible-playbook'
+                echo "Vérification de WSL et d'ansible-playbook..."
+                sh '''
+                wsl --list --verbose
+                wsl -e bash -c "which ansible-playbook"
+                wsl -e bash -c "ansible-playbook --version"
+                '''
             }
         }
         stage('Run Playbook') {
             steps {
-                script {
-                    try {
-                        echo "Exécution du playbook Ansible..."
-                        sh 'wsl ansible-playbook ansible/playbook.yaml'
-                    } catch (err) {
-                        echo "Échec lors de l'exécution du playbook."
-                        error("Playbook failed: ${err}")
-                    }
-                }
+                echo "Exécution du playbook Ansible via WSL..."
+                sh 'wsl -e bash -c "ansible-playbook ansible/playbook.yaml"'
             }
         }
     }
