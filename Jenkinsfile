@@ -14,7 +14,8 @@ pipeline {
 
         stage('Déployer sur Kubernetes avec Ansible') {
             steps {
-                ansiblePlaybook playbook: 'ansible/playbook.yml'
+                // Appel d'Ansible via WSL avec la commande bat et wsl
+                bat 'wsl ansible-playbook ansible/playbook.yml'
             }
         }
     }
