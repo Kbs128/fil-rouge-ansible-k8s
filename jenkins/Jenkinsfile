@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        GIT_REPO = 'https://github.com/ton-utilisateur/ton-repo.git'
+        GIT_REPO = 'https://github.com/Kbs128/fil-rouge-ansible-k8s.git'
     }
 
     stages {
