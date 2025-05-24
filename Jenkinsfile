@@ -1,31 +1,39 @@
 pipeline {
     agent any
+
     stages {
-        stage('Check Ansible') {
+        stage('Checkout SCM') {
             steps {
-                echo 'Vérification de la présence d\'ansible-playbook dans WSL...'
-                sh 'wsl which ansible-playbook'
+                checkout scm
             }
         }
-        stage('Check Playbook') {
+        stage('Check Ansible') {
             steps {
-                echo 'Liste du playbook pour vérifier son existence...'
-                sh 'wsl ls -l /mnt/c/Users/pc/.jenkins/workspace/Ansible-k8s/ansible/playbook.yml'
+                echo "Vérification de la présence d'ansible-playbook dans WSL..."
+                sh 'wsl which ansible-playbook'
             }
         }
         stage('Run Playbook') {
             steps {
-                echo 'Exécution du playbook Ansible via WSL...'
-                sh 'wsl ansible-playbook /mnt/c/Users/pc/.jenkins/workspace/Ansible-k8s/ansible/playbook.yml'
+                script {
+                    try {
+                        echo "Exécution du playbook Ansible..."
+                        sh 'wsl ansible-playbook ansible/playbook.yaml'
+                    } catch (err) {
+                        echo "Échec lors de l'exécution du playbook."
+                        error("Playbook failed: ${err}")
+                    }
+                }
             }
         }
     }
+
     post {
-        success {
-            echo 'Playbook exécuté avec succès !'
-        }
         failure {
-            echo 'Échec lors de l\'exécution du playbook.'
+            echo "Le pipeline a échoué."
+        }
+        success {
+            echo "Le pipeline s'est terminé avec succès."
         }
     }
 }
