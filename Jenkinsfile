@@ -11,9 +11,10 @@ pipeline {
             steps {
                 script {
                     try {
-                        bat 'wsl.exe --status'
+                        bat 'wsl -l -v'
+                        bat 'wsl --distribution Ubuntu --status'
                     } catch (Exception e) {
-                        error "WSL n'est pas correctement installé ou configuré"
+                        error "Ubuntu WSL n'est pas correctement installé"
                     }
                 }
             }
@@ -30,10 +31,10 @@ pipeline {
             steps {
                 echo "Installation et vérification d'Ansible dans WSL..."
                 bat '''
-                    wsl -e bash -c "sudo apt-get update && sudo apt-get install -y ansible"
+                    wsl --distribution Ubuntu -e bash -c "sudo apt-get update && sudo apt-get install -y ansible"
                 '''
                 bat '''
-                    wsl -e bash -c "ansible --version"
+                    wsl --distribution Ubuntu -e bash -c "ansible --version"
                 '''
             }
         }
@@ -42,7 +43,7 @@ pipeline {
             steps {
                 echo "Exécution du playbook Ansible dans WSL..."
                 bat '''
-                    wsl -e bash -c "cd /mnt/c/Users/pc/.jenkins/workspace/Ansible-k8s && ansible-playbook -i inventory/hosts.yml site.yml"
+                    wsl --distribution Ubuntu -e bash -c "cd /mnt/c/Users/pc/.jenkins/workspace/Ansible-k8s && ansible-playbook -i inventory/hosts.yml site.yml -vv"
                 '''
             }
         }
