@@ -2,6 +2,17 @@ pipeline {
     agent any
 
     stages {
+        stage('Vérification Prérequis') {
+            steps {
+                sh '''
+                if ! wsl.exe --status > /dev/null 2>&1; then
+                    echo "WSL n'est pas installé ou ne fonctionne pas"
+                    exit 1
+                fi
+                '''
+            }
+        }
+
         stage('Checkout SCM') {
             steps {
                 echo 'Clonage du dépôt...'
@@ -9,26 +20,28 @@ pipeline {
             }
         }
 
-        stage('Check WSL & Ansible') {
+        stage('Configuration WSL & Ansible') {
             steps {
-                echo "Vérification de WSL et d'ansible-playbook..."
+                echo "Installation et vérification d'Ansible dans WSL..."
                 sh '''
-                wsl bash -c "echo 'Utilisateur courant : $(whoami)'; \
-                echo 'Chemin d\\'Ansible : $(which ansible-playbook)'; \
+                wsl bash -c "\
                 if ! command -v ansible-playbook > /dev/null; then \
-                  echo 'Ansible non trouvé'; \
-                  exit 1; \
-                fi; \
+                    echo 'Installation d\\'Ansible...' && \
+                    sudo apt update && \
+                    sudo apt install -y ansible && \
+                    echo 'Ansible installé avec succès'; \
+                fi && \
                 ansible-playbook --version"
                 '''
             }
         }
 
-        stage('Run Playbook') {
+        stage('Exécution Playbook') {
             steps {
                 echo "Exécution du playbook Ansible dans WSL..."
                 sh '''
-                wsl bash -c "cd /mnt/c/Users/pc/.jenkins/workspace/Ansible-k8s && ansible-playbook site.yml"
+                wsl bash -c "cd \$(wslpath 'C:\\Users\\pc\\.jenkins\\workspace\\Ansible-k8s') && \
+                ansible-playbook site.yml"
                 '''
             }
         }
@@ -39,7 +52,7 @@ pipeline {
             echo 'Le pipeline a échoué.'
         }
         success {
-            echo 'Pipeline exécuté avec succès.'
+            echo 'Le pipeline s\'est exécuté avec succès.'
         }
     }
 }
