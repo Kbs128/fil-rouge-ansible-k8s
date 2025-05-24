@@ -5,9 +5,6 @@
     - name: Déployer les secrets
       command: kubectl apply -f ../k8s/postgres-secret.yaml
 
-    - name: Déployer la base de données PostgreSQL
-      command: kubectl apply -f ../k8s/postgres-deployment.yaml
-
     - name: Déployer le backend
       command: kubectl apply -f ../k8s/backend-deployment.yaml
 
