@@ -1,22 +1,31 @@
 pipeline {
     agent any
-
-    environment {
-        GIT_REPO = 'https://github.com/Kbs128/fil-rouge-ansible-k8s.git'
-    }
-
     stages {
-        stage('Cloner le dépôt') {
+        stage('Check Ansible') {
             steps {
-                git url: "${GIT_REPO}", branch: 'main'
+                echo 'Vérification de la présence d\'ansible-playbook dans WSL...'
+                sh 'wsl which ansible-playbook'
             }
         }
-
-        stage('Déployer sur Kubernetes avec Ansible') {
+        stage('Check Playbook') {
             steps {
-                // Appel d'Ansible via WSL avec la commande bat et wsl
-                bat 'wsl ansible-playbook ansible/playbook.yml'
+                echo 'Liste du playbook pour vérifier son existence...'
+                sh 'wsl ls -l /mnt/c/Users/pc/.jenkins/workspace/Ansible-k8s/ansible/playbook.yml'
             }
+        }
+        stage('Run Playbook') {
+            steps {
+                echo 'Exécution du playbook Ansible via WSL...'
+                sh 'wsl ansible-playbook /mnt/c/Users/pc/.jenkins/workspace/Ansible-k8s/ansible/playbook.yml'
+            }
+        }
+    }
+    post {
+        success {
+            echo 'Playbook exécuté avec succès !'
+        }
+        failure {
+            echo 'Échec lors de l\'exécution du playbook.'
         }
     }
 }
