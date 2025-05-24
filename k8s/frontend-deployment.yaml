@@ -12,11 +12,11 @@ spec:
   template:
     metadata:
       labels:
-        app: frontend
+        app: myfrontend  # ✅ correspondance correcte
     spec:
       containers:
-      - name:  frontend
-        image: babs32/projetfilrouge_frontend:latest  # remplace par l'image Docker de ton frontend
+      - name: frontend
+        image: babs32/projetfilrouge_frontend:latest
         ports:
         - containerPort: 80
 
@@ -27,10 +27,10 @@ metadata:
   name: frontend-service
 spec:
   selector:
-    app: frontend
-  type: NodePort  # ou LoadBalancer si tu es sur un cloud ou Minikube avec tunnel
+    app: myfrontend  # ✅ correspondance correcte
+  type: NodePort
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 30080  # Port exposé sur la machine hôte (facilement testable sur Minikube)
+      nodePort: 30080
