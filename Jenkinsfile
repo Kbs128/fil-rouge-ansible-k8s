@@ -1,36 +1,34 @@
 pipeline {
     agent any
 
+    environment {
+        WSL_DISTRO = 'Ubuntu'
+    }
+
     stages {
-        stage('Checkout SCM') {
+        stage('Cloner depuis GitHub') {
             steps {
+                echo 'Clonage du dépôt...'
                 checkout scm
             }
         }
-        stage('Check WSL & Ansible') {
+
+        stage('Exécuter le Playbook Ansible') {
             steps {
-                echo "Vérification de WSL et d'ansible-playbook..."
-                sh '''
-                wsl --list --verbose
-                wsl -e bash -c "which ansible-playbook"
-                wsl -e bash -c "ansible-playbook --version"
-                '''
-            }
-        }
-        stage('Run Playbook') {
-            steps {
-                echo "Exécution du playbook Ansible via WSL..."
-                sh 'wsl -e bash -c "ansible-playbook ansible/playbook.yaml"'
+                echo 'Exécution du playbook Ansible...'
+                bat """
+                    wsl -d ${WSL_DISTRO} -- bash -c "cd /mnt/c/Users/pc/.jenkins/workspace/Ansible-k8s && ansible-playbook -i inventory/hosts.yml site.yml"
+                """
             }
         }
     }
 
     post {
-        failure {
-            echo "Le pipeline a échoué."
-        }
         success {
-            echo "Le pipeline s'est terminé avec succès."
+            echo '✅ Succès : le pipeline a réussi.'
+        }
+        failure {
+            echo '❌ Échec : le pipeline a échoué.'
         }
     }
 }
